@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="/jspsych/jspsych.js"></script>
+    <script src="/jspsych/plugins/jspsych-video-button-response.js"></script>
+    <script src="/jspsych/plugins/jspsych-html-button-response.js"></script>
+    <script src="/jspsych/plugins/jspsych-preload.js"></script>
+    <script src="/jspsych/plugins/jspsych-webgazer-init-camera.js"></script>
+    <script src="/jspsych/plugins/jspsych-webgazer-calibrate.js"></script>
+    <script src="jspsych/examples/js/webgazer/webgazer.js"></script>
+    <script src="/jspsych/extensions/jspsych-ext-webgazer.js"></script>
+    <script src="jspsych/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="/jspsych/plugins/jspsych-survey-likert.js"></script>
+    <script src="/jspsych/plugins/jspsych-video-button-response.js"></script>
+    <script src="jspsych/plugins/jspsych-fullscreen.js"></script>
+    <link rel="stylesheet" href="/jspsych/css/jspsych.css" />
+  </head>
+  <body></body>
+  <script>
+    // preloading videos only works when the file is running on a server
+    // if you run this experiment by opening the file directly in the browser,
+    // then video preloading will be disabled to prevent CORS errors
+
+    var scale = [
+      "Strongly Disagree",
+      "Disagree",
+      "Neutral",
+      "Agree",
+      "Strongly Agree",
+    ];
+
+    var preload = {
+      type: "preload",
+      auto_preload: true,
+    };
+
+    var init_camera = {
+      type: "webgazer-init-camera",
+    };
+
+    var validation = {
+      type: "webgazer-calibrate",
+    };
+
+    var welcome_trial = {
+      type: "html-keyboard-response",
+      stimulus: "Welcome to Advertising Experiment",
+    };
+
+    var likert_trial_random_order = {
+      type: "survey-likert",
+      questions: [
+        { prompt: "Question 1", labels: scale },
+        { prompt: "Question 2", labels: scale },
+        { prompt: "Question 3", labels: scale },
+        { prompt: "Question 4", labels: scale },
+        { prompt: "Question 5", labels: scale },
+      ],
+      //randomize_question_order: true,
+      scale_width: 500,
+    };
+
+    var trial_2 = {
+      type: "video-button-response",
+      stimulus: ["video/one.mp4"],
+      choices: ["😄", "😁", "🥱", "😣", "🤯"],
+      button_html: '<div style="font-size:40px;">%choice%</div>',
+      margin_vertical: "10px",
+      margin_horizontal: "8px",
+      prompt:
+        "<p>Click the emoji that best represents your reaction to the video</p><p>When the video stops, click a button to end the trial.</p><p>Response buttons are disabled while the video is playing.</p>",
+      width: 1000,
+      autoplay: true,
+      response_ends_trial: true,
+      response_allowed_while_playing: false,
+    };
+
+    var fullscreen_trial = {
+      type: "fullscreen",
+      fullscreen_mode: true,
+    };
+
+    var fullscreen_trial_exit = {
+      type: "fullscreen",
+      fullscreen_mode: false,
+    };
+
+    jsPsych.init({
+      timeline: [
+        preload,
+        init_camera,
+        validation,
+        fullscreen_trial,
+        welcome_trial,
+        likert_trial_random_order,
+        trial_2,
+        fullscreen_trial_exit,
+      ],
+      extensions: [{ type: "webgazer" }],
+      on_finish: function () {
+        jsPsych.data.displayData();
+      },
+    });
+  </script>
+</html>
