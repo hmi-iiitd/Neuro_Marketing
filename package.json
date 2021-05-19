@@ -1,0 +1,22 @@
+{
+  "name": "add_experiment",
+  "version": "1.0.0",
+  "description": "Neuro-Makreting analysis of Advertisement and the response on Indian audience.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hmi-iiitd/Neuro_Marketing.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hmi-iiitd/Neuro_Marketing/issues"
+  },
+  "homepage": "https://github.com/hmi-iiitd/Neuro_Marketing#readme",
+  "dependencies": {
+    "number-to-words": "^1.2.4"
+  }
+}

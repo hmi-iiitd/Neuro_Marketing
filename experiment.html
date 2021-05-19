@@ -13,9 +13,12 @@
     <script src="/jspsych/plugins/jspsych-survey-likert.js"></script>
     <script src="/jspsych/plugins/jspsych-video-button-response.js"></script>
     <script src="jspsych/plugins/jspsych-fullscreen.js"></script>
+    <script src="node_modules/number-to-words/numberToWords.min.js"></script>
+
     <link rel="stylesheet" href="/jspsych/css/jspsych.css" />
   </head>
   <body></body>
+
   <script>
     // preloading videos only works when the file is running on a server
     // if you run this experiment by opening the file directly in the browser,
@@ -60,21 +63,6 @@
       scale_width: 500,
     };
 
-    var trial_2 = {
-      type: "video-button-response",
-      stimulus: ["video/one.mp4"],
-      choices: ["😄", "😁", "🥱", "😣", "🤯"],
-      button_html: '<div style="font-size:40px;">%choice%</div>',
-      margin_vertical: "10px",
-      margin_horizontal: "8px",
-      prompt:
-        "<p>Click the emoji that best represents your reaction to the video</p><p>When the video stops, click a button to end the trial.</p><p>Response buttons are disabled while the video is playing.</p>",
-      width: 1000,
-      autoplay: true,
-      response_ends_trial: true,
-      response_allowed_while_playing: false,
-    };
-
     var fullscreen_trial = {
       type: "fullscreen",
       fullscreen_mode: true,
@@ -85,17 +73,31 @@
       fullscreen_mode: false,
     };
 
+    var timeline = [welcome_trial];
+
+    for (let i = 1; i <= 5; i++) {
+      //console.log(numberToWords.toWords(i));
+      video_number = numberToWords.toWords(i);
+      var video_trial = {
+        type: "video-button-response",
+        stimulus: [`video/${video_number}.mp4`],
+        choices: ["😄", "😁", "🥱", "😣", "🤯"],
+        button_html: '<div style="font-size:40px;">%choice%</div>',
+        margin_vertical: "10px",
+        margin_horizontal: "8px",
+        prompt:
+          "<p>Click the emoji that best represents your reaction to the video</p><p>When the video stops, click a button to end the trial.</p><p>Response buttons are disabled while the video is playing.</p>",
+        width: 1000,
+        autoplay: true,
+        response_ends_trial: true,
+        response_allowed_while_playing: false,
+      };
+
+      timeline.push(video_trial);
+    }
+
     jsPsych.init({
-      timeline: [
-        preload,
-        init_camera,
-        validation,
-        fullscreen_trial,
-        welcome_trial,
-        likert_trial_random_order,
-        trial_2,
-        fullscreen_trial_exit,
-      ],
+      timeline: timeline,
       extensions: [{ type: "webgazer" }],
       on_finish: function () {
         jsPsych.data.displayData();
@@ -103,3 +105,12 @@
     });
   </script>
 </html>
+
+<!-- preload,
+init_camera,
+validation,
+fullscreen_trial,
+welcome_trial,
+likert_trial_random_order,
+trial_2,
+fullscreen_trial_exit, -->
