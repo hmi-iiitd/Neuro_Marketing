@@ -14,6 +14,7 @@
     <script src="/jspsych/plugins/jspsych-video-button-response.js"></script>
     <script src="jspsych/plugins/jspsych-fullscreen.js"></script>
     <script src="node_modules/number-to-words/numberToWords.min.js"></script>
+    <script src="jspsych/plugins/jspsych-instructions.js"></script>
 
     <link rel="stylesheet" href="/jspsych/css/jspsych.css" />
   </head>
@@ -23,6 +24,10 @@
     // preloading videos only works when the file is running on a server
     // if you run this experiment by opening the file directly in the browser,
     // then video preloading will be disabled to prevent CORS errors
+
+    var instructions = {
+      type: "instructions",
+    };
 
     var scale = [
       "Strongly Disagree",
@@ -48,6 +53,8 @@
     var welcome_trial = {
       type: "html-keyboard-response",
       stimulus: "Welcome to Advertising Experiment",
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 1000,
     };
 
     var demogarphics;
@@ -106,6 +113,35 @@
 
     var timeline = [welcome_trial, personality_survey];
 
+    var post_video_survey = {
+      type: "survey-likert",
+      questions: [
+        {
+          prompt: "Have you seen the Advertisement before?",
+          labels: ["Yes", "No"],
+        },
+        {
+          prompt: "How much did you LIKE the AD  that you just watched ?",
+          labels: scale,
+        },
+        {
+          prompt: "Did you feel excitement while watching the AD?",
+          labels: scale,
+        },
+
+        {
+          prompt: "How likely are you to MENTION this ad to someone else ?",
+          labels: scale,
+        },
+        {
+          prompt:
+            "If you watched this AD on a OTT platform/ website , how likely would you be to SHARE it with someone else ?",
+          labels: scale,
+        },
+      ],
+      scale_width: 500,
+    };
+
     for (let i = 1; i <= 5; i++) {
       //console.log(numberToWords.toWords(i));
       video_number = numberToWords.toWords(i);
@@ -124,7 +160,7 @@
         response_allowed_while_playing: false,
       };
 
-      timeline.push(video_trial);
+      timeline.push(video_trial, post_video_survey);
     }
 
     jsPsych.init({

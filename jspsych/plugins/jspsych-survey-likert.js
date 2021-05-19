@@ -36,7 +36,7 @@ jsPsych.plugins["survey-likert"] = (function () {
           required: {
             type: jsPsych.plugins.parameterType.BOOL,
             pretty_name: "Required",
-            default: true,
+            default: false,
             description: "Makes answering the question required.",
           },
           name: {
