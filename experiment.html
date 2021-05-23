@@ -13,13 +13,24 @@
     <script src="/jspsych/plugins/jspsych-survey-likert.js"></script>
     <script src="/jspsych/plugins/jspsych-video-button-response.js"></script>
     <script src="jspsych/plugins/jspsych-fullscreen.js"></script>
+    <script src="node_modules/number-to-words/numberToWords.min.js"></script>
+    <script src="jspsych/plugins/jspsych-instructions.js"></script>
+    <script src="/fileSaver.js"></script>
+
     <link rel="stylesheet" href="/jspsych/css/jspsych.css" />
   </head>
-  <body></body>
+  <body>
+    <video controls></video>
+  </body>
+
   <script>
     // preloading videos only works when the file is running on a server
     // if you run this experiment by opening the file directly in the browser,
     // then video preloading will be disabled to prevent CORS errors
+
+    var instructions = {
+      type: "instructions",
+    };
 
     var scale = [
       "Strongly Disagree",
@@ -45,34 +56,52 @@
     var welcome_trial = {
       type: "html-keyboard-response",
       stimulus: "Welcome to Advertising Experiment",
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 1000,
     };
 
-    var likert_trial_random_order = {
+    var demogarphics;
+
+    var personality_survey = {
       type: "survey-likert",
       questions: [
-        { prompt: "Question 1", labels: scale },
-        { prompt: "Question 2", labels: scale },
-        { prompt: "Question 3", labels: scale },
-        { prompt: "Question 4", labels: scale },
-        { prompt: "Question 5", labels: scale },
+        { prompt: "Am the life of the party", labels: scale },
+        {
+          prompt: "Talk to a lot of different people at parties",
+          labels: scale,
+        },
+        { prompt: "Don't talk a lot", labels: scale },
+        { prompt: "Keep in the background", labels: scale },
+        { prompt: "Sympathize with others' feelings", labels: scale },
+        { prompt: "Feel others' emotions", labels: scale },
+        { prompt: "Am not really interested in others", labels: scale },
+        {
+          prompt: "Am not interested in other people's problems",
+          labels: scale,
+        },
+        { prompt: "Get chores done right away", labels: scale },
+        { prompt: "Like order", labels: scale },
+        {
+          prompt: "Often forget to put things back in their proper place",
+          labels: scale,
+        },
+        { prompt: "Make a mess of things", labels: scale },
+        { prompt: "Have frequent mood swings", labels: scale },
+        { prompt: "Get upset easily", labels: scale },
+        { prompt: "Am relaxed most of the time", labels: scale },
+        { prompt: "Seldom feel blue", labels: scale },
+        { prompt: "Have a vivid imagination", labels: scale },
+        {
+          prompt: "Have difficulty understanding abstract ideas",
+          labels: scale,
+        },
+        { prompt: "Am not interested in abstract ideas", labels: scale },
+        { prompt: "Do not have a good imagination", labels: scale },
       ],
       //randomize_question_order: true,
       scale_width: 500,
-    };
-
-    var trial_2 = {
-      type: "video-button-response",
-      stimulus: ["video/one.mp4"],
-      choices: ["😄", "😁", "🥱", "😣", "🤯"],
-      button_html: '<div style="font-size:40px;">%choice%</div>',
-      margin_vertical: "10px",
-      margin_horizontal: "8px",
-      prompt:
-        "<p>Click the emoji that best represents your reaction to the video</p><p>When the video stops, click a button to end the trial.</p><p>Response buttons are disabled while the video is playing.</p>",
-      width: 1000,
-      autoplay: true,
-      response_ends_trial: true,
-      response_allowed_while_playing: false,
+      preamble:
+        "Here are a number of characteristics that may or may not apply to you. For example, do you agree that you are someone who likes to spend time with others? Please select the appropriate rating next to each statement to indicate the extent to which you agree or disagree with that statement.",
     };
 
     var fullscreen_trial = {
@@ -85,21 +114,195 @@
       fullscreen_mode: false,
     };
 
-    jsPsych.init({
-      timeline: [
-        preload,
-        init_camera,
-        validation,
-        fullscreen_trial,
-        welcome_trial,
-        likert_trial_random_order,
-        trial_2,
-        fullscreen_trial_exit,
+    var timeline = [
+      preload,
+      init_camera,
+      validation,
+      welcome_trial,
+      personality_survey,
+    ];
+
+    var post_video_survey = {
+      type: "survey-likert",
+      questions: [
+        {
+          prompt: "Have you seen the Advertisement before?",
+          labels: ["Yes", "No"],
+        },
+        {
+          prompt: "How much did you LIKE the AD  that you just watched ?",
+          labels: scale,
+        },
+        {
+          prompt: "Did you feel excitement while watching the AD?",
+          labels: scale,
+        },
+
+        {
+          prompt: "How likely are you to MENTION this ad to someone else ?",
+          labels: scale,
+        },
+        {
+          prompt:
+            "If you watched this AD on a OTT platform/ website , how likely would you be to SHARE it with someone else ?",
+          labels: scale,
+        },
       ],
-      extensions: [{ type: "webgazer" }],
-      on_finish: function () {
-        jsPsych.data.displayData();
+      scale_width: 500,
+    };
+
+    var video_start_page = {
+      type: "html-keyboard-response",
+      stimulus: "No the Videos will play",
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 2000,
+      on_start: function () {
+        jsPsych.extensions["webgazer"].resume();
+        jsPsych.extensions["webgazer"].showPredictions();
       },
-    });
+    };
+    timeline.push(video_start_page);
+
+    for (let i = 2; i <= 2; i++) {
+      //console.log(numberToWords.toWords(i));
+      video_number = numberToWords.toWords(i);
+      var video_trial = {
+        type: "video-button-response",
+        stimulus: [`video/${video_number}.mp4`],
+        choices: ["Continue"],
+        button_html: '<div style="font-size:40px;">%choice%</div>',
+        margin_vertical: "10px",
+        margin_horizontal: "8px",
+        prompt:
+          "<p>Once the vidoe ends click on Continue</p><p>When the video stops, click a button to end the trial.</p><p>Response buttons are disabled while the video is playing.</p>",
+        width: 1000,
+        autoplay: true,
+        response_ends_trial: true,
+        response_allowed_while_playing: false,
+        extensions: [
+          {
+            type: "webgazer",
+            params: {
+              targets: ["#jspsych-video-button-response-stimulus"],
+            },
+          },
+        ],
+      };
+
+      timeline.push(video_trial, post_video_survey);
+    }
+
+    let constraintObj = {
+      audio: false,
+      video: {
+        facingMode: "user",
+        width: { min: 640, ideal: 1280, max: 1920 },
+        height: { min: 480, ideal: 720, max: 1080 },
+      },
+    };
+    // width: 1280, height: 720  -- preference only
+    // facingMode: {exact: "user"}
+    // facingMode: "environment"
+
+    //handle older browsers that might implement getUserMedia in some way
+    if (navigator.mediaDevices === undefined) {
+      navigator.mediaDevices = {};
+      navigator.mediaDevices.getUserMedia = function (constraintObj) {
+        let getUserMedia =
+          navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        if (!getUserMedia) {
+          return Promise.reject(
+            new Error("getUserMedia is not implemented in this browser")
+          );
+        }
+        return new Promise(function (resolve, reject) {
+          getUserMedia.call(navigator, constraintObj, resolve, reject);
+        });
+      };
+    } else {
+      navigator.mediaDevices
+        .enumerateDevices()
+        .then((devices) => {
+          devices.forEach((device) => {
+            console.log(device.kind.toUpperCase(), device.label);
+            //, device.deviceId
+          });
+        })
+        .catch((err) => {
+          console.log(err.name, err.message);
+        });
+    }
+
+    navigator.mediaDevices
+      .getUserMedia(constraintObj)
+      .then(function (mediaStreamObj) {
+        //connect the media stream to the first video element
+        let video = document.querySelector("video");
+        if ("srcObject" in video) {
+          video.srcObject = mediaStreamObj;
+        } else {
+          //old version
+          video.src = window.URL.createObjectURL(mediaStreamObj);
+        }
+
+        video.onloadedmetadata = function (ev) {
+          //show in the video element what is being captured by the webcam
+          video.play();
+        };
+
+        //add listeners for saving video/audio
+        //let start = document.getElementById("btnStart");
+        //let stop = document.getElementById("btnStop");
+        //let vidSave = document.getElementById("vid2");
+        let mediaRecorder = new MediaRecorder(mediaStreamObj);
+        let chunks = [];
+
+        mediaRecorder.start();
+        console.log(mediaRecorder.state);
+
+        // stop.addEventListener("click", (ev) => {
+        //   mediaRecorder.stop();
+        // });
+
+        mediaRecorder.ondataavailable = function (ev) {
+          chunks.push(ev.data);
+        };
+        mediaRecorder.onstop = (ev) => {
+          let blob = new Blob(chunks, { type: "video/mp4;" });
+          chunks = [];
+          // let videoURL = window.URL.createObjectURL(blob);
+          // vidSave.src = videoURL;
+          var filename = "data_video.mp4";
+          console.log(blob);
+          saveAs(blob, filename);
+          // Need to save this on Server.
+          console.log("File savevd Locally");
+        };
+
+        jsPsych.init({
+          timeline: timeline,
+          extensions: [{ type: "webgazer" }],
+          on_finish: function () {
+            jsPsych.extensions["webgazer"].pause();
+            jsPsych.extensions["webgazer"].hidePredictions();
+            jsPsych.data.displayData();
+            mediaRecorder.stop();
+
+            console.log(mediaRecorder.state);
+          },
+        });
+      })
+      .catch(function (err) {
+        console.log(err.name, err.message);
+      });
   </script>
 </html>
+
+/********************************* getUserMedia returns a Promise resolve -
+returns a MediaStream Object reject returns one of the following errors
+AbortError - generic unknown cause NotAllowedError (SecurityError) - user
+rejected permissions NotFoundError - missing media track NotReadableError - user
+permissions given but hardware/OS error OverconstrainedError - constraint video
+settings preventing TypeError - audio: false, video: false
+*********************************/ preload, init_camera, validation,
+fullscreen_trial, welcome_trial, likert_survey, trial_2, fullscreen_trial_exit,
